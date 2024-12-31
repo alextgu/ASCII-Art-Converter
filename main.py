@@ -1,119 +1,80 @@
 from PIL import Image
+import subprocess
+from colorama import Fore, Style
 
-im = Image.open("image-path")
+ASCII_order = "`^\",:;Il!i~+_-?][}{1)(|\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"
+MAX_PIXEL_VALUE = 255
 
+def get_pixel_matrix(height, im):
+    im.thumbnail((height, 200))
+    pixels = list(im.getdata())
+    return [pixels[i:i+im.width] for i in range(0, len(pixels), im.width)]
 
-width, height = im.size
-
-width, height = im.size
-aspect_ratio = width / height
-
-max_width = 200
-
-if width > max_width:
-    new_width = max_width
-    new_height = int(new_width / aspect_ratio) 
-else:
-    new_width = width
-    new_height = height
-
-resized_image = im.resize((new_width, new_height))
-
-
-print("Your image loaded successfully!")
-print("Image size: " + str(new_width) + " X " + str(height))
-
-pixels_matrix = list(im.getdata())
-pixels_matrix = [pixels_matrix[i * width:(i + 1) * width] for i in range(height)]
-
-for row in range(len(pixels_matrix)):
-    for i in range(len(pixels_matrix)):
-        pixels_matrix[row][i]  = round(max(pixels_matrix[row][i][0],pixels_matrix[row][i][1],pixels_matrix[row][i][2]) + 
-        min(pixels_matrix[row][i][0],pixels_matrix[row][i][1],pixels_matrix[row][i][2])/2)
-
-
-"`^\",:;Il!i~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"
-ascii_map = {
-    range(0, 4): '```',
-    range(4, 8): '^^^',
-    range(8, 12): "'''",
-    range(12, 16): ',,,',
-    range(16, 20): ':::',
-    range(20, 24): ';;;',
-    range(24, 28): 'III',
-    range(28, 32): 'lll',
-    range(32, 36): '!!!',
-    range(36, 40): 'iii',
-    range(40, 44): '~~~',
-    range(44, 48): '+++',
-    range(48, 52): '___',
-    range(52, 56): '---',
-    range(56, 60): '???',
-    range(60, 64): ']]]',
-    range(64, 68): '[[[',
-    range(68, 72): '}}}',
-    range(72, 76): '{{{',
-    range(76, 80): '111',
-    range(80, 84): ')))',
-    range(84, 88): ')))',
-    range(88, 92): '|||',
-    range(92, 96): '\\\\\\',
-    range(96, 100): '///',
-    range(100, 104): 'ttt',
-    range(104, 108): 'fff',
-    range(108, 112): 'jjj',
-    range(112, 116): 'rrr',
-    range(116, 120): 'xxx',
-    range(120, 124): 'nnn',
-    range(124, 128): 'uuu',
-    range(128, 132): 'vvv',
-    range(132, 136): 'ccc',
-    range(136, 140): 'zzz',
-    range(140, 144): 'XXX',
-    range(144, 148): 'YYY',
-    range(148, 152): 'UUU',
-    range(152, 156): 'JJJ',
-    range(156, 160): 'CCC',
-    range(160, 164): 'LLL',
-    range(164, 168): 'QQQ',
-    range(168, 172): '000',
-    range(172, 176): 'OOO',
-    range(176, 180): 'ZZZ',
-    range(180, 184): 'mmm',
-    range(184, 188): 'www',
-    range(188, 192): 'qqq',
-    range(192, 196): 'ppp',
-    range(196, 200): 'ddd',
-    range(200, 204): 'bbb',
-    range(204, 208): 'kkk',
-    range(208, 212): 'hhh',
-    range(212, 216): 'aaa',
-    range(216, 220): 'ooo',
-    range(220, 224): '***',
-    range(224, 228): '###',
-    range(228, 232): 'MMM',
-    range(232, 236): 'WWW',
-    range(236, 240): '&&&',
-    range(240, 244): '888',
-    range(244, 248): '%%%',
-    range(248, 999): '$$$'
-}
-
-for row in range(len(pixels_matrix)):
-    for i in range(len(pixels_matrix)):
-        for r in ascii_map.keys():
-            if pixels_matrix[row][i] in r:
-                pixels_matrix[row][i] = ascii_map[r]
-                break
-
-with open("canvas.txt", 'w') as canvas:
-    
-    for i in range(len(pixels_matrix)):
-        row = ""
-        for x in range(len(pixels_matrix)):
-            row += pixels_matrix[i][x]
-        print(row + "\n")
+def get_intensity_matrix(matrix, algo='avg'):
+    intensity_matrix = []
+    for row in matrix:
+        temp_row = []
+        for i in row:
+            if algo == "avg":
+                temp_row.append(round((i[0]+i[1]+i[2])/3,2))
+            elif algo == "max min":
+                temp_row.append(round(((i[0]+i[2])/2),2))
         
+            elif algo == "luminosity":
+                temp_row.append(round(0.21*i[0] + 0.72*i[1] + 0.07*i[2],2))
+            else:
+                raise Exception('Undefined algorithm. Please try "avg", "max min" or "luminosity"')
+        intensity_matrix.append(temp_row)
+    return intensity_matrix
+
+def get_char_matrix(intensity_matrix):
+    char_matrix = []
+    max_pixel = max(map(max, intensity_matrix)) # Darkest pixel
+    min_pixel = min(map(min, intensity_matrix)) # Lightest pixel
+    for row in intensity_matrix:
+        temp_row = []
+        for i in row:
+            rescaled_pixel = max_pixel*(i-min_pixel)/float(max_pixel - min_pixel)
+            temp_row.append(rescaled_pixel)
+        char_matrix.append(temp_row)
+    return char_matrix
+
+
+def get_ASCII(intensity_matrix, ascii_chars):
+    ascii_matrix = []
+    for row in intensity_matrix:
+        temp_row = []
+        for i in row:
+            temp_row.append(ascii_chars[int(i/MAX_PIXEL_VALUE * len(ascii_chars)) - 1])
+        ascii_matrix.append(temp_row)
+    return ascii_matrix
+
+
+
+
+def print_ascii_matrix(ascii_matrix, text_color):
+    for row in ascii_matrix:
+        # Create a string for the row by joining the characters
+        line = "".join(row)
+        # Print the row with the specified color
+        print(text_color + line)
+    # Reset the style to default after printing
+    print(Style.RESET_ALL)
+
+
+path = "/Users/agu/Desktop/ASCII-Art-Converter/canvas.jpg"
+subprocess.call(["imagesnap", path, "-w", "2"]) 
+
+im = Image.open(path)
+pixels = get_pixel_matrix(1000,im)
+
+
+intensity_matrix = get_intensity_matrix(pixels, "avg")
+intensity_matrix = get_char_matrix(intensity_matrix)
+
+ascii_matrix = get_ASCII(intensity_matrix, ASCII_order)
+print_ascii_matrix(ascii_matrix, Fore.BLACK)
+
 
 
         
