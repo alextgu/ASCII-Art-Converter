@@ -1,7 +1,8 @@
 from PIL import Image
 from colorama import Fore, Style
+import os
 
-ASCII_order = "`^\",:;Il!i~+_-?][}{1)(|\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"
+ASCII_order = "`^\",:;Il!i~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"
 MAX_PIXEL_VALUE = 255
 
 def get_pixel_matrix(height, im):
@@ -48,7 +49,25 @@ def get_ASCII(intensity_matrix, ascii_chars):
         ascii_matrix.append(temp_row)
     return ascii_matrix
 
+def save_ascii_image(input_path, output_path, text_colour):
+    im = Image.open(input_path)
+    pixels = get_pixel_matrix(1000, im)
 
+    intensity_matrix = get_intensity_matrix(pixels, "avg")
+    intensity_matrix = get_char_matrix(intensity_matrix)
+
+    ascii_matrix = get_ASCII(intensity_matrix, ASCII_order)
+
+    with open(output_path, 'w') as f:
+        for row in ascii_matrix:
+            line = "".join(row)
+            f.write(text_colour + line + "\n")  
+        f.write(Style.RESET_ALL) 
+
+    return output_path 
+
+
+"""
 def print_ascii_matrix(ascii_matrix, text_color):
     for row in ascii_matrix:
         line = "".join(row)
@@ -69,3 +88,4 @@ ascii_matrix = get_ASCII(intensity_matrix, ASCII_order)
 print_ascii_matrix(ascii_matrix, Fore.BLACK)
 
 
+"""
