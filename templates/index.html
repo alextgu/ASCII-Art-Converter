@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ASCII Converter</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
+    <link rel="stylesheet" href="static/styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
@@ -13,16 +12,36 @@
     
 <body>
     <div class="title">
-        <p>Image to ASCII Converter</p>
+        <h1>Image to ASCII Converter</h1>
     </div>
 
-    <form method='POST' enctype='multipart/form-data'>
-        {{form.hidden_tag()}}
-        {{form.file()}}
-        {{form.submit()}}
-    
+    <div class="subtitle">
+        <h3>Turn any Jpg/Jpeg photo into ASCII art! Photos with high contrasts work best.</h3>
+    </div>
 
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-</body>
+    <!-- Form for file upload -->
+    <div class="button">
+    <form method="POST" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        {{ form.file.label }} {{ form.file }}
+        {{ form.submit }}
+    </form>
+    </div>
+
+    <div class="container">
+        <img class="logan" src="static/images/logan.jpeg" alt="logan paul" width="340" height="340">
+        <div class="arrow"><img src="static/images/arrow.png" height="200" width="200"></div>
+        <img class="logan" src="static/images/logan-ascii.jpg" alt="logan paul ASCII" width="340" height="340">
+    </div>
+
+    {% if ascii_art %}
+        <h2>Converted ASCII Art:</h2>
+        <pre>{{ ascii_art }}</pre>
+        <div class="link">
+            <a href="{{ url_for('download_page', filename=ascii_filename) }}">Download ASCII Text File</a>
+        </div>
+    {% endif %}
+
+    <script src="static/script.js"></script>
 </body>
 </html>
