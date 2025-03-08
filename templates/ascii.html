@@ -3,13 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASCII Art</title>
+    <title> <h1>ASCII Art Converter</h1></title>
 </head>
 <body>
-    <h1>Here is your ASCII art!</h1>
+    <h3>Upload an Image to Convert to ASCII</h3>
+    <form method="POST" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        {{ form.file.label }} {{ form.file }}
+        {{ form.submit }}
+    </form>
 
-    
+    {% if ascii_art %}
+        <h2>Converted ASCII Art:</h2>
+        <pre>{{ ascii_art }}</pre>
+        <a href="/download"><button>Download as Text File</button></a>
 
-    <a href="{{ url_for('download_ascii', filename=filename) }}" download>Download ASCII art</a>  <!-- Allow downloading -->
+        <br><br>
+        <a href="{{ url_for('home') }}">
+            <button>Return to Home</button>
+        </a>
+    {% endif %}
 </body>
 </html>
