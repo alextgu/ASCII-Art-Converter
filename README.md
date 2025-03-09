@@ -32,7 +32,7 @@ Follow the steps below to set up the project on your local machine.
 <p> Clone the repository to your local machine:
 ```bash
 git clone https://github.com/yourusername/image-to-ascii.git <br>
-cd image-to-ascii
+cd [path to ASCII-Art-Converter]
 
 ##  2. Create a Virtual Environment 
 
