@@ -45,9 +45,9 @@ cd [path to ASCII-Art-Converter]
 ## 3. Install the dependencies found in requirements.txt
 <p> pip install -r requirements.txt </p>
 
-## 4. Run main.py and on the browser open your local host (http://127.0.0.1:5000/)
+## 4. Run main.py
 
-<p> python main.py </p>
+<p> python main.py <br> On the browser open your local host (http://127.0.0.1:5000/)</p>
 
 
 
