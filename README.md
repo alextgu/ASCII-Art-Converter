@@ -25,12 +25,10 @@
 
 ## Setup Instructions
 
-Follow the steps below to set up the project on your local machine.
-
 ## 1. Clone the Repository
 
 <p> Clone the repository to your local machine:
-```bash
+bash
 git clone git@github.com:alextgu/ASCII-Art-Converter.git <br>
 cd [path to ASCII-Art-Converter]
 
